@@ -1,0 +1,4 @@
+# Skrip shell selalu LF agar tidak rusak di dalam container Linux
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.ini text eol=lf

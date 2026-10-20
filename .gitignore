@@ -1,0 +1,10 @@
+# Berkas sementara / hasil build lokal di root
+*.zip.tmp
+*.zip
+.tmp/
+
+# Editor & OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

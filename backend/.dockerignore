@@ -1,0 +1,34 @@
+# Rahasia & konfigurasi lokal — env diambil dari environment Render, bukan image
+.env
+.env.*
+auth.json
+
+# Dependensi & artefak build (dibangun ulang di dalam image)
+vendor
+node_modules
+.phpunit.cache
+.phpunit.result.cache
+
+# Log & berkas runtime (direktori dibuat oleh Dockerfile/entrypoint)
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/app/private/*
+storage/app/public/*
+
+# Pengujian tidak diperlukan di image produksi (composer --no-dev)
+tests
+
+# Git & editor
+.git
+.gitignore
+.gitattributes
+.idea
+.vscode
+.codex
+.cursor
+.nova
+.zed
+
+*.log
