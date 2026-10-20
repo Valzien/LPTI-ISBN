@@ -78,7 +78,7 @@ Laravel 13 sebagai REST API dan Next.js 16 sebagai antarmuka web.
 | Direktori | Isi | Stack |
 |---|---|---|
 | `frontend/` | Antarmuka web | Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · shadcn/ui |
-| `backend/` | REST API `/api/v1` | Laravel 13 · Sanctum · Eloquent · MySQL 8 |
+| `backend/` | REST API `/api/v1` | Laravel 13 · Sanctum · Eloquent · PostgreSQL (Neon) — MySQL 8 tetap didukung |
 | `docs/` | Dokumentasi desain, kontrak, deployment | Markdown · Mermaid |
 
 Autentikasi memakai pola **BFF (Backend-for-Frontend)**: token Sanctum hanya
@@ -95,10 +95,11 @@ Route Handlers). Rincian: [`docs/OTENTIKASI.md`](docs/OTENTIKASI.md).
 | PHP | 8.3 | `php -v` |
 | Composer | 2 | `composer -V` |
 | Node.js | 20 (diuji v25) | `node -v` |
-| MySQL | 8 (MariaDB 10.6+) | `mysql --version` |
+| MySQL | 8 (MariaDB 10.6+) — pengembangan lokal | `mysql --version` |
+| PostgreSQL | 17 (Neon) — produksi | — |
 
-Ekstensi PHP yang dibutuhkan: `pdo_mysql`, `mbstring`, `openssl`, `fileinfo`,
-`ctype`, `json`, `tokenizer`, `xml`, `curl`.
+Ekstensi PHP yang dibutuhkan: `pdo_mysql` atau `pdo_pgsql` (sesuai driver),
+`mbstring`, `openssl`, `fileinfo`, `ctype`, `json`, `tokenizer`, `xml`, `curl`.
 
 ---
 
@@ -154,7 +155,7 @@ Copy-Item .env.example .env
 php artisan key:generate
 ```
 
-Siapkan database MySQL:
+Siapkan database MySQL (atau langsung ke Neon Postgres — lihat catatan di bawah):
 
 ```powershell
 # Laragon
@@ -171,6 +172,12 @@ DB_DATABASE=lpti_isbn
 DB_USERNAME=root
 DB_PASSWORD=
 ```
+
+> **Catatan produksi.** `backend/.env` pada repo ini sudah di-*wire* ke **Neon
+> PostgreSQL** (endpoint **direct**, bukan pooled) — blok MySQL lama tetap
+> tersimpan sebagai komentar di bawahnya. Untuk kembali ke MySQL lokal, cukup
+> tukar komentar kedua blok. Migrasi **wajib** lewat endpoint direct Neon;
+> endpoint `-pooler` gagal (`SQLSTATE[25P02]`). Rincian: `docs/DEPLOYMENT.md` §9.3.
 
 Jalankan migrasi, seeder, dan server:
 
@@ -324,9 +331,9 @@ Variabel paling penting:
 | `APP_ENV` | `local` | `production` |
 | `APP_DEBUG` | `true` | **`false`** |
 | `APP_KEY` | hasil `key:generate` | unik per lingkungan |
-| `APP_URL` | `http://localhost:8000` | `https://api.domain-anda.id` |
+| `APP_URL` | `http://localhost:8000` | `https://<service>.onrender.com` |
 | `APP_LOCALE` | `id` | `id` |
-| `DB_*` | MySQL lokal | user DB khusus, bukan `root` tanpa password |
+| `DB_*` | MySQL lokal **atau** Neon (direct) | Neon Postgres, user khusus bukan `root` |
 | `LOG_LEVEL` | `debug` | `warning` |
 | `FILESYSTEM_DISK` | `local` | `local` (dokumen harus tetap privat) |
 | `QUEUE_CONNECTION` | `database` | `database` |
@@ -339,7 +346,7 @@ tetap tersimpan di `storage/app/private`.
 
 | Variabel | Nilai | Catatan |
 |---|---|---|
-| `API_URL` | `http://localhost:8000` (dev) / `https://api.domain-anda.id` (prod) | Dibaca **hanya di sisi server** |
+| `API_URL` | `http://localhost:8000` (dev) / `https://<service>.onrender.com` (prod) | Dibaca **hanya di sisi server** |
 
 **Jangan** memberi prefix `NEXT_PUBLIC_` pada `API_URL` — prefix tersebut ikut
 membundel nilai ke kode browser dan akan membocorkan alamat backend.
@@ -417,7 +424,33 @@ Batasan laju: login 5 permintaan/menit per email+IP, registrasi 3/menit per IP.
 - [x] **Tahap 6** — Verifikasi admin
 - [x] **Tahap 7** — Notifikasi, pencarian, dan laporan
 - [x] **Tahap 8** — Pengujian dan hardening
-- [ ] Tahap 9 — Dokumentasi dan deployment
+- [x] **Tahap 9** — Dokumentasi dan deployment
+
+### Status produksi (per 20 Oktober 2026)
+
+| Komponen | Status | Keterangan |
+|---|---|---|
+| Repo | ✅ | `github.com/Valzien/LPTI-ISBN` (monorepo, branch `main`) |
+| Backend | ✅ live | Render (Docker), health check `/up` → **200** |
+| Frontend | ✅ live | Vercel, Root Directory `frontend`, `API_URL` → backend Render |
+| Database | ✅ live | Neon Postgres, branch `production`, 10 tabel + 4 persyaratan ter-seed |
+
+Verifikasi end-to-end yang sudah dijalankan: migrasi 10 tabel di Neon,
+`register` → `login` → `GET /me` sukses (tulis + baca Neon), `GET
+/api/v1/document-requirements` mengembalikan 4 baris, `php artisan test`
+**160/160 lulus**, `next build` sukses (27 rute).
+
+**Catatan lingkungan nyata:**
+
+- **Jaringan kampus memblokir `*.vercel.app`** — link publik bisa gagal
+  dibuka di WiFi kampus/instansi (bukan bug aplikasi). Pakai hotspot seluler,
+  aktifkan Secure DNS (DoH), atau pasang domain sendiri.
+- Akun di produksi dibuat dari environment Render: `ADMIN_EMAIL` /
+  `ADMIN_PASSWORD` (`super_admin`) via `AdminUserSeeder`. Verifikator (`admin`)
+  dan pemohon tambahan dibuat lewat UI `/admin/pengguna/baru` (khusus
+  `super_admin`) atau registrasi mandiri di `/register`.
+- Dokumen terunggah di instance Render **gratis** bersifat *ephemeral*
+  (hilang saat restart/redeploy) — lihat `docs/DEPLOYMENT.md` §9.5.
 
 ---
 

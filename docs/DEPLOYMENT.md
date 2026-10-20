@@ -445,6 +445,35 @@ Ikuti checklist bagian 6–7, ditambah poin spesifik:
 6. Ulangi registrasi 4× dalam 1 menit → percobaan ke-4 → **429** berbahasa Indonesia.
 7. Dengan `APP_DEBUG=false`, picu error 500 → respons tanpa stack trace.
 
+### 9.8 Status implementasi (per 20 Oktober 2026)
+
+| Item | Status |
+|---|---|
+| Neon project/branch | ✅ `production` (endpoint **direct**) — 10 tabel + 4 persyaratan |
+| Render backend (Docker) | ✅ live, `/up` → 200 |
+| Vercel frontend | ✅ live, `API_URL` → Render |
+| Kredensial produksi | ada di root `.env.render-vercel` (ter-*gitignore*) |
+| Skill agen Neon | ✅ `.agents/skills/neon-postgres/` + `skills-lock.json` |
+
+**Kendala nyata yang ditemukan:**
+
+1. Migrasi via endpoint `-pooler` gagal (`SQLSTATE[25P02]`) → semua koneksi
+   dialihkan ke endpoint **direct**.
+2. `APP_URL` berisi placeholder bertanda kurung siku (`https://[GANTI].onrender.com`)
+   membuat **seluruh** perintah artisan gagal dengan `Invalid URI: Host is malformed`
+   (kurung siku = sintaks host IPv6 di Symfony). Selalu pakai domain polos.
+3. Firewall WiFi kampus memblokir `*.vercel.app` — link publik gagal dibuka di
+   jaringan tersebut (bukan masalah deployment).
+
+**Rencana berikutnya (belum dikerjakan):**
+
+- [ ] `/` otomatis redirect: belum login → `/login`, sudah login → `/dashboard`
+      (keputusan lokasi landing page publik masih menggantung).
+- [ ] Tambah akun 1 per role di produksi (verifikator via `/admin/pengguna/baru`).
+- [ ] Opsional: domain sendiri untuk menghindari blokir `*.vercel.app`.
+- [ ] Opsional: Persistent Disk Render agar dokumen unggahan tidak hilang.
+- [ ] Opsional: upgrade ESLint (sisa peringatan *deprecated* saat build Vercel).
+
 ## 10. Rollback di Render & Vercel
 
 - **Render**: Dashboard service → Deploys → pilih deploy sehat → **Rollback**
