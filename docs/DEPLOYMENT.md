@@ -321,17 +321,36 @@ berlaku.
 
 ### 9.3 Database Neon (Postgres, gratis)
 
-1. Buat akun di <https://neon.tech> → project baru → salin parameter koneksi
-   (pakai **direct** connection, bukan pooled).
-2. Catat: host (`ep-xxx.aws.neon.tech`), database (`neondb`), user, password;
-   port `5432`.
+Proyek ini sudah terhubung ke Neon lewat **Neon CLI** (butuh Node.js ≥ 20):
+
+```bash
+npm i -g neon
+neon login            # autentikasi via browser (sekali)
+neon env pull         # tarik nilai koneksi ke root .env.local
+neon config plan      # pratinjau perubahan policy pada neon.ts
+neon deploy           # terapkan policy + refresh .env.local
+```
+
+1. `neon env pull` mengisi root **`.env.local`** (di-gitignore) dengan
+   `DATABASE_URL` (endpoint **pooled**, host `-pooler`) dan
+   `DATABASE_URL_UNPOOLED` (**direct**). Nilai itu di-*wire* ke
+   `backend/.env` (blok `DB_*`) memakai **endpoint direct** —
+   konfigurasi di sana sudah terisi sebagai contoh.
+2. **Wajib direct, bukan pooled.** Percobaan nyata membuktikan
+   `php artisan migrate` lewat endpoint `-pooler` gagal di tengah transaksi
+   (`SQLSTATE[25P02]: In failed sql transaction ...`). Karena itu `DB_HOST`
+   diarahkan ke endpoint direct, dan `backend/docker/entrypoint.sh` tetap
+   memaksa koneksi direct (`DATABASE_URL_UNPOOLED`) bila variabel itu
+   tersedia di environment container.
 3. Proyek sudah portabel ke Postgres: migrasi tidak memakai SQL khusus MySQL,
    pencarian memakai `LOWER(...) LIKE LOWER(?)` (bukan `LIKE` polos yang
    case-sensitive di Postgres), dan driver `pgsql` sudah ada di `config/database.php`
    lengkap dengan `DB_SSLMODE` (set `DB_SSLMODE=require` di Render).
 4. Migrasi dijalankan otomatis entrypoint container
    (`php artisan migrate --force`) — tidak perlu menjalankan apa pun secara
-   manual di Neon.
+   manual di Neon. Skill agen `neon-postgres` (terpasang di
+   `.agents/skills/`, lihat `skills-lock.json`) menyimpan panduan praktik
+   terbaiknya.
 
 ### 9.4 Backend di Render (Docker)
 
@@ -371,6 +390,10 @@ berlaku.
    | `ADMIN_PASSWORD` | password kuat (bukan demo!) |
    | `ADMIN_NAME` | opsional, default `Admin Utama LPTI` |
    | `TRUSTED_PROXIES` | opsional — lihat catatan 9.6 |
+
+   > `DB_HOST` harus **endpoint direct** Neon (`ep-xxx.aws.neon.tech` tanpa
+   > `-pooler`), diambil dari `DATABASE_URL_UNPOOLED` hasil `neon env pull`
+   > (lihat 9.3). Endpoint pooled untuk DDL justru gagal.
 
 4. Deploy pertama: entrypoint (`backend/docker/entrypoint.sh`) otomatis:
    direktori runtime → `config:cache`/`route:cache`/`view:cache` →

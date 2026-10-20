@@ -2,6 +2,22 @@
 *.zip.tmp
 *.zip
 .tmp/
+/.next/
+/.tsbuildinfo
+
+# Dependensi & artefak Neon CLI (neon init / neon deploy / neon skills) —
+# dibangun ulang di mesin lokal, jangan ikut repo
+/node_modules/
+/package-lock.json
+/package.json
+/neon.ts
+/.neon
+
+# Environment (berisi rahasia — `neon env pull` menulis .env.local di root,
+# nilai kredensial DB Neon tidak boleh masuk repo)
+.env
+.env.*
+!.env.example
 
 # Editor & OS
 .DS_Store

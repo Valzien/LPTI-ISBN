@@ -24,7 +24,16 @@ php artisan route:cache
 php artisan view:cache
 
 # Migrasi idempoten setiap kali container mulai (deploy/restart).
-php artisan migrate --force
+# DDL Neon HARUS lewat koneksi DIRECT (tanpa -pooler/PgBouncer) — session state
+# seperti SET tidak bertahan di pooling transaksional; terbukti gagal saat
+# migrasi lokal lewat endpoint -pooler. Konfigurasi lokal & Render memakai
+# endpoint direct via DB_HOST (docs §9.3/9.4); bila suatu saat DB_URL dipakai,
+# cabang if ini menjamin migrasi tetap lewat direct (skill neon-postgres).
+if [ -n "${DATABASE_URL_UNPOOLED:-}" ]; then
+    DB_URL="$DATABASE_URL_UNPOOLED" php artisan migrate --force
+else
+    php artisan migrate --force
+fi
 
 # Seeder idempoten (aman diulang tiap boot):
 # - persyaratan dokumen — hanya diisi bila tabel masih kosong;
