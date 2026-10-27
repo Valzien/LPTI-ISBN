@@ -4,6 +4,11 @@ Dokumen ini memetakan **seluruh alur** LPTI-ISBN dalam bentuk diagram
 [Mermaid](https://mermaid.js.org/) yang bisa langsung dirender (GitHub/GitLab/VS Code)
 atau dipakai sebagai acuan menggambar ulang di draw.io / Figma / Miro.
 
+> **Versi siap edit:** [`docs/ALUR.drawio`](ALUR.drawio) — file draw.io asli berisi
+> 3 halaman (Alur End-to-End, Status Pengajuan, Masuk & Guard). Buka di
+> [app.diagrams.net](https://app.diagrams.net) → *File → Open from Device*, atau
+> pakai ekstensi **Draw.io Integration** di VS Code.
+
 Sumber kebenaran tetap kode:
 
 | Aspek | Lokasi kode |

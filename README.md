@@ -394,6 +394,7 @@ npm start
 |---|---|
 | [`docs/ANALISIS.md`](docs/ANALISIS.md) | Kebutuhan, asumsi, arsitektur, keputusan teknis, alur status, risiko |
 | [`docs/ALUR.md`](docs/ALUR.md) | Peta alur (diagram Mermaid siap flowchart): auth, pengajuan, verifikasi, notifikasi, guard akses |
+| [`docs/ALUR.drawio`](docs/ALUR.drawio) | Versi draw.io siap edit (3 halaman: alur end-to-end, status, masuk & guard) |
 | [`docs/DATABASE.md`](docs/DATABASE.md) | ERD (Mermaid) dan spesifikasi setiap tabel |
 | [`docs/API.md`](docs/API.md) | Kontrak API `/api/v1`: format respons, otorisasi, kode error |
 | [`docs/OTENTIKASI.md`](docs/OTENTIKASI.md) | Autentikasi BFF: Sanctum PAT, cookie httpOnly, proteksi route |
