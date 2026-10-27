@@ -134,6 +134,7 @@ LPTI_ISBN/
 │   └── .env.example
 ├── docs/
 │   ├── ANALISIS.md               # Tahap 1: kebutuhan, asumsi, arsitektur, alur status
+│   ├── ALUR.md                   # Peta alur (Mermaid): auth, pengajuan, verifikasi, notifikasi
 │   ├── DATABASE.md               # ERD & spesifikasi tabel
 │   ├── API.md                    # Kontrak API /api/v1
 │   ├── OTENTIKASI.md             # Arsitektur autentikasi BFF
@@ -392,6 +393,7 @@ npm start
 | Dokumen | Isi |
 |---|---|
 | [`docs/ANALISIS.md`](docs/ANALISIS.md) | Kebutuhan, asumsi, arsitektur, keputusan teknis, alur status, risiko |
+| [`docs/ALUR.md`](docs/ALUR.md) | Peta alur (diagram Mermaid siap flowchart): auth, pengajuan, verifikasi, notifikasi, guard akses |
 | [`docs/DATABASE.md`](docs/DATABASE.md) | ERD (Mermaid) dan spesifikasi setiap tabel |
 | [`docs/API.md`](docs/API.md) | Kontrak API `/api/v1`: format respons, otorisasi, kode error |
 | [`docs/OTENTIKASI.md`](docs/OTENTIKASI.md) | Autentikasi BFF: Sanctum PAT, cookie httpOnly, proteksi route |
